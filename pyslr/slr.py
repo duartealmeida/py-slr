@@ -192,8 +192,8 @@ def create_radar_plots():
     df1 = df_articles.iloc[0:half]
     df2 = df_articles.iloc[half::]
 
-    plot_radar_many(df1, radar_dimensions, "dimensions_radar_1")
-    plot_radar_many(df2, radar_dimensions, "dimensions_radar_2")
+    plot_radar_many(df1, radar_dimensions, root_dir, "dimensions_radar_1")
+    plot_radar_many(df2, radar_dimensions, root_dir, "dimensions_radar_2")
 
 
 def create_geography_plots():
