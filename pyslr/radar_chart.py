@@ -11,9 +11,6 @@ from matplotlib.spines import Spine
 from matplotlib.transforms import Affine2D
 import os
 
-root_dir = "C:\\Users\\duart\\OneDrive\\Ambiente de Trabalho\\PhD\\slR"
-
-
 def radar_factory(num_vars, frame='circle'):
     """
     Create a radar chart with `num_vars` Axes.
@@ -121,7 +118,7 @@ def plot_radar(x, y, title=""):
     ax.set_varlabels(spoke_labels)
 
 
-def plot_radar_many(df, dimensions, filename):
+def plot_radar_many(df, dimensions, root_dir, filename):
     theta = radar_factory(len(dimensions), frame='circle')
     labels = [value.replace(" ", "\n") for value in dimensions]
     nrows = int(math.sqrt(len(df.index)))
