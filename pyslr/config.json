@@ -1,0 +1,27 @@
+{
+  "root_dir": "C:\\Users\\duart\\OneDrive\\Ambiente de Trabalho\\PhD\\slR",
+
+  "articles_file_name": "slr_articles.xlsx",
+  "authors_file_name": "slr_authors.xlsx",
+  "references_folder": "references",
+  "references_file_name": "bib.bib",
+
+  "dimensions": {"Year": ["B"],
+                "Venue": ["P"],
+                "Tourism type": ["B"],
+                "Application": ["P"],
+                "Data source": ["BH"],
+                "Data linkage": ["P"],
+                "Visualization type": ["B"],
+                "Spatial scale": ["B"],
+                "Purpose": ["B"]},
+
+  "stacked_dimensions" : [["Year", "Venue"]],
+
+  "geography_levels" : {"Country": ["BH"],
+                        "Continent": ["P"]},
+
+  "radar_dimensions" : ["Application", "Data linkage", "Data sources", "Visualization"],
+
+  "database_names" : ["scopus", "wos", "dimensions"]
+}
