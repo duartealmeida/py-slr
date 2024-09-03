@@ -1,13 +1,9 @@
-import matplotlib.pyplot as plt
-import plotly.express as px
-import pandas as pd
 import json
-import numpy as np
-import os
-from pybtex.database.input import bibtex
-from radar_chart import *
 
-from pathlib import Path
+import pandas as pd
+from pybtex.database.input import bibtex
+
+from radar_chart import *
 
 with open('config.json', 'r') as file:
     config = json.load(file)
@@ -17,7 +13,7 @@ root_dir = config["root_dir"]
 slr_articles_path = os.path.join(root_dir, config["articles_file_name"])
 slr_authors_path = os.path.join(root_dir, config["authors_file_name"])
 references_path = os.path.join(root_dir, config["references_folder"])
-bib_path = os.path.join(root_dir, config["references_file"])
+bib_path = os.path.join(root_dir, config["references_file_name"])
 
 dimensions = config["dimensions"]
 stacked_dimensions = config["stacked_dimensions"]
@@ -303,8 +299,8 @@ def update_slr_tables_from_bibtex():
                               "Continent": "Blank",
                               }
             df_authors_new = df_authors_new.append(new_author_row, ignore_index=True)
-    df_articles_new.to_excel("slr_articles.xlsx", index=False)
-    df_authors_new.to_excel("slr_authors.xlsx", index=False)
+    df_articles_new.to_excel(config["articles_file_name"], index=False)
+    df_authors_new.to_excel(config["authors_file_name"], index=False)
 
 
 # Given two Bibtex files from the same database, return a .bib file with the new articles (removing duplicates)
