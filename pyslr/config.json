@@ -15,6 +15,14 @@
                 "Visualization type": ["B"],
                 "Spatial scale": ["B"],
                 "Purpose": ["B"]},
+  
+  "table_dimensions": {"Tourism type": ["T"],
+                      "Application": ["A"],
+                      "Data source": ["DS"],
+                      "Data linkage": ["DL"],
+                      "Visualization type": ["V"],
+                      "Spatial scale": ["S"],
+                      "Purpose": ["P"]},
 
   "stacked_dimensions" : [["Year", "Venue"]],
 
