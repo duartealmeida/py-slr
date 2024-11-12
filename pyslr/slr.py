@@ -32,6 +32,7 @@ df_authors = pd.DataFrame()
 
 num_studies = 0
 
+
 # Graph functions
 def plot_line(dimension, dim_count_dict):
     fig, ax = plt.subplots()
@@ -201,7 +202,7 @@ def create_stacked_dimension_plots():
 
 
 def create_radar_plots():
-    half = int(len(df_articles.index)/2)
+    half = int(len(df_articles.index) / 2)
     df1 = df_articles.iloc[0:half]
     df2 = df_articles.iloc[half::]
 
@@ -234,7 +235,7 @@ def get_venue(bibtex_type):
     if bibtex_type == "article":
         return "Journal"
     if bibtex_type == "incollection" or bibtex_type == "inbook":
-        return "Book Section"
+        return "Book Chapter"
     if bibtex_type == "book":
         return "Book"
 
@@ -267,21 +268,29 @@ def get_authors_list(entry):
 
 
 def get_word_acronym(word):
-    if len(word) <= 2:
+    if word == "N/A" or word == '"N/A"':
+        return "-"
+    elif len(word) <= 2 or word.isupper():
         return word.upper()
     else:
         return word.upper()[0]
 
 
-def get_dimension_value_acronym(dimension_value):
-    words = dimension_value.split()
+def get_dimension_value_acronym(dimension_value, existing_acronyms):
+    if dimension_value in existing_acronyms.keys():
+        return existing_acronyms[dimension_value]
+    
+    words = dimension_value.replace("-", " ").split()
+    acronym = ""
     if len(words) > 1:
-        return get_word_acronym(words[0]) + get_word_acronym(words[1])
+        for word in words:
+            acronym += get_word_acronym(word)
     else:
-        if len(dimension_value) <= 3:
-            return dimension_value
-        else:
-            return get_word_acronym(words[0])
+        acronym = get_word_acronym(words[0])
+
+    if acronym in existing_acronyms.values():
+        acronym += dimension_value[1].lower()
+    return acronym
 
 
 # Given a Bibtex file (at "bib_path"), update the "articles" and "authors" files
@@ -386,7 +395,7 @@ def create_table_files_from_bibtex():
                            "Total": 0,
                            }
         articles_list.append(new_article_row)
-        #df_articles_new = df_articles_new.append(new_article_row, ignore_index=True)
+        # df_articles_new = df_articles_new.append(new_article_row, ignore_index=True)
         for author in list(new_entry.persons["author"]):
             new_author_row = {"Study": study_number,
                               "Citation": new_entry.key,
@@ -399,7 +408,7 @@ def create_table_files_from_bibtex():
                               "Continent": "Blank",
                               }
             authors_list.append(new_author_row)
-            #df_authors_new = df_authors_new.append(new_author_row, ignore_index=True)
+            # df_authors_new = df_authors_new.append(new_author_row, ignore_index=True)
     df_articles_new = pd.DataFrame(articles_list)
     df_authors_new = pd.DataFrame(authors_list)
     df_articles_new.to_excel(slr_articles_path, index=False)
@@ -417,16 +426,17 @@ def create_latex_information_table():
         for index, row in df_articles.iterrows():
             clean_title = str(row['Title']).replace('&', '\\&').replace('%', '\\%')
             clean_pub = str(row['Publication']).replace('&', '\\&').replace('%', '\\%')
-            f.write(f"{row['Study']} & {row['Year']} & \\cite" +"{" + row['Citation'] + "}" + f" & {clean_title} "
-                    f"& {clean_pub} \\\\[0.2cm]\n")
+            f.write(f"{row['Study']} & {row['Year']} & \\cite" + "{" + row['Citation'] + "}" + f" & {clean_title} "
+                                                                                               f"& {clean_pub} \\\\[0.2cm]\n")
         f.write("\\bottomrule\n")
         f.write("\\end{tabular}\n")
         f.close()
 
 
 def create_latex_summary_table():
+    dim_acronyms = {k: {} for (k, _) in table_dimensions.items()}
     with open('summary.tex', 'w') as f:
-        f.write("\\begin{tabular}{" + "l"*(len(table_dimensions)+1) +"}\n")
+        f.write("\\begin{tabular}{" + "l" * (len(table_dimensions) + 1) + "}\n")
         f.write("\\toprule\n")
 
         column_line = "Study & " + " & ".join(table_dimensions.keys()) + "\\\\[0.1cm]\n"
@@ -434,17 +444,25 @@ def create_latex_summary_table():
         f.write("\\midrule\n")
 
         for index, row in df_articles.iterrows():
-            line_list = [f"{row['Study']}"]
+            line_list = ["\\cite{" + row['Citation'] + "}"]
             for dimension in table_dimensions.keys():
-                print(dimension)
                 dim_values = row[dimension].split(',')
-                acronym_values = [get_dimension_value_acronym(x) for x in dim_values]
+                acronym_values = []
+                for v in dim_values:
+                    value = v.strip()
+                    acronym = get_dimension_value_acronym(value, dim_acronyms[dimension])
+                    if value not in dim_acronyms[dimension].keys():
+                        print(value)
+                        dim_acronyms[dimension][value] = acronym
+                    acronym_values.append(acronym)
+                acronym_values.sort()
                 line_list.append(", ".join(acronym_values))
             line = " & ".join(line_list) + " \\\\[0.2cm]\n"
             f.write(line)
         f.write("\\bottomrule\n")
         f.write("\\end{tabular}\n")
         f.close()
+    print(dim_acronyms)
 
 
 def init():
@@ -462,6 +480,7 @@ def init():
             df_articles, df_authors = create_table_files_from_bibtex()
             num_studies = len(df_articles.index)
         print("Tables created. You can now fill the tables with manual information")
+
 
 def display_menu():
     print("--- Plots")
@@ -482,7 +501,7 @@ def main():
     while True:
         init()
         display_menu()
-        choice = input("Enter your choice (1-7): ")
+        choice = input("Enter your choice (1-9): ")
 
         if choice == '1':
             create_dimension_plots()
